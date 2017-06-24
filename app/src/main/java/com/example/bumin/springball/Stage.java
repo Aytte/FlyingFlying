@@ -2,55 +2,69 @@ package com.example.bumin.springball;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-
 import java.util.ArrayList;
-import java.util.Vector;
 
 public class Stage extends AppCompatActivity {
-    ArrayList<Ball> springs = new ArrayList<Ball>();
+    ArrayList<Ball> springs = new ArrayList<>();
 
     final float GRAVITY = (float) 0.03;
-    final int X = 0;
-    final int Y = 1;
-
-    float getCenterX(View v) {
-        return v.getWidth() / 2;
-    }
-
-/*
-    float getCenterY(View v) {
-        return v.getHeight() / 2;
-    }
-*/
 
     Thread phyMaker = new Thread(new Physics());
+    FrameLayout fram;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stage);
-        springs.add(new Ball(this));
-        /*
-        PlayView play = new PlayView(this);
-        setContentView(play);
-        */
 
-        FrameLayout fram = (FrameLayout)findViewById(R.id.Frames);
-        fram.addView(springs.get(0));
+        fram = (FrameLayout)findViewById(R.id.Frames);
+        createBall();
+    }
+
+    void createBall(){
+        springs.add(new Ball(this));
+        fram.addView(springs.get(springs.size()-1));
+        springs.get(springs.size()-1).setOnTouchListener(new onClickBounder());
+    }
+
+    class onClickBounder implements View.OnTouchListener {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            Ball ball = (Ball)view;
+            switch (motionEvent.getAction()){
+                case MotionEvent.ACTION_DOWN:
+                    System.out.println("clicked!");
+                    ball.setVelo((ball.getWidth()/2-motionEvent.getX())/60,-7);
+                    System.out.println(motionEvent.getX());
+                    System.out.println(motionEvent.getY());
+                    break;
+            }
+            return false;
+        }
     }
 
     boolean isGameON = false;
 
     public void deb(View v) {
-        isGameON = false;
+        if(!isGameON){
         springs.get(0).setY(30);
         springs.get(0).setX(50);
         isGameON = true;
         phyMaker.start();
-        System.out.println("button called");
+        System.out.println("button called");}
+        else{
+            createBall();
+        }
+    }
+
+    public void pu(View v){
+        if(!isGameON) {
+            phyMaker.notify();
+        }
+        isGameON = !isGameON;
     }
 
     class Physics implements Runnable {
@@ -86,33 +100,37 @@ public class Stage extends AppCompatActivity {
                 if (ball.getY() < 0) {
                     ball.setVelo(ball.getVeloX(), -(ball.getVeloY()));
                 }
+                if (ball.getX()+ball.getWidth() > fram.getWidth()){
+                    ball.setVelo(-(ball.getVeloX()), ball.getVeloY());
+                }
+                if (ball.getY()+ball.getHeight() > fram.getHeight()){
+                    ball.setVelo(ball.getVeloX(), -(ball.getVeloY()));
+                }
             }
-
-/*            ball.setX(loc.get(X));
-            ball.setY(loc.get(Y));
-            if (loc.get(X) < 0) {
-                velo.set(X, -(velo.get(X)));
-            }
-            if (loc.get(Y) < 0) {
-                velo.set(Y, -(velo.get(Y)));
-            }*/
         }
 
         void updatePos() {
             setGravityAcc();
             addVelo();
             locateBall();
-            //System.out.println("Complete");
         }
 
         @Override
         public void run() {
-            while (isGameON) {
-                updatePos();
-                try {
-                    Thread.sleep(3);
-                } catch (InterruptedException e) {
-                    e.getStackTrace();
+            while (true) {
+                if(isGameON) {
+                    updatePos();
+                    try {
+                        Thread.sleep(3);
+                    } catch (InterruptedException e) {
+                        e.getStackTrace();
+                    }
+                }else{
+                    try {
+                        this.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }

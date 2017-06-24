@@ -5,6 +5,7 @@ import android.graphics.Paint;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.FrameLayout;
 
 /**
  * Created by bumin on 2017-06-24.
@@ -22,13 +23,9 @@ public class Ball extends AppCompatImageView{
     public Ball(Context context) {
         super(context);
         setImageResource(R.drawable.ball);
-        setMaxHeight(120);
-        setMinimumHeight(120);
-        setMaxWidth(120);
-        setMinimumWidth(120);
         setX(0);
         setY(0);
-        invalidate();
+        setLayoutParams(new FrameLayout.LayoutParams(240,240));
         System.out.println("Called by context");
     }
 
