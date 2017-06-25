@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+
 import java.util.ArrayList;
 
 public class Stage extends AppCompatActivity {
@@ -20,24 +21,24 @@ public class Stage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stage);
 
-        fram = (FrameLayout)findViewById(R.id.Frames);
+        fram = (FrameLayout) findViewById(R.id.Frames);
         createBall();
     }
 
-    void createBall(){
+    void createBall() {
         springs.add(new Ball(this));
-        fram.addView(springs.get(springs.size()-1));
-        springs.get(springs.size()-1).setOnTouchListener(new onClickBounder());
+        fram.addView(springs.get(springs.size() - 1));
+        springs.get(springs.size() - 1).setOnTouchListener(new onClickBounder());
     }
 
     class onClickBounder implements View.OnTouchListener {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-            Ball ball = (Ball)view;
-            switch (motionEvent.getAction()){
+            Ball ball = (Ball) view;
+            switch (motionEvent.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     System.out.println("clicked!");
-                    ball.setVelo((ball.getWidth()/2-motionEvent.getX())/60,-7);
+                    ball.setVelo((ball.getWidth() / 2 - motionEvent.getX()) / 60, -7);
                     System.out.println(motionEvent.getX());
                     System.out.println(motionEvent.getY());
                     break;
@@ -49,22 +50,28 @@ public class Stage extends AppCompatActivity {
     boolean isGameON = false;
 
     public void deb(View v) {
-        if(!isGameON){
-        springs.get(0).setY(30);
-        springs.get(0).setX(50);
-        isGameON = true;
-        phyMaker.start();
-        System.out.println("button called");}
-        else{
+        if (!isGameON) {
+            springs.get(0).setY(30);
+            springs.get(0).setX(50);
+            isGameON = true;
+            phyMaker.start();
+            System.out.println("button called");
+        } else {
             createBall();
         }
     }
 
-    public void pu(View v){
-        if(!isGameON) {
-            phyMaker.notify();
-        }
+    Object dif;
+
+    public void pu(View v) {
         isGameON = !isGameON;
+        if(isGameON){
+            synchronized (phyMaker){
+                phyMaker.notify();
+                System.out.println("notified!");
+            }
+        }
+        System.out.println(isGameON);
     }
 
     class Physics implements Runnable {
@@ -100,10 +107,10 @@ public class Stage extends AppCompatActivity {
                 if (ball.getY() < 0) {
                     ball.setVelo(ball.getVeloX(), -(ball.getVeloY()));
                 }
-                if (ball.getX()+ball.getWidth() > fram.getWidth()){
+                if (ball.getX() + ball.getWidth() > fram.getWidth()) {
                     ball.setVelo(-(ball.getVeloX()), ball.getVeloY());
                 }
-                if (ball.getY()+ball.getHeight() > fram.getHeight()){
+                if (ball.getY() + ball.getHeight() > fram.getHeight()) {
                     ball.setVelo(ball.getVeloX(), -(ball.getVeloY()));
                 }
             }
@@ -118,20 +125,24 @@ public class Stage extends AppCompatActivity {
         @Override
         public void run() {
             while (true) {
-                if(isGameON) {
-                    updatePos();
-                    try {
-                        Thread.sleep(3);
-                    } catch (InterruptedException e) {
-                        e.getStackTrace();
+                    if (isGameON) {
+                        updatePos();
+                        try {
+                            Thread.sleep(3);
+                        } catch (InterruptedException e) {
+                            e.getStackTrace();
+                        }
+                    } else {
+                        System.out.println("waiting!");
+                        synchronized (phyMaker){
+                            try {
+                                //dif = this;
+                                phyMaker.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
-                }else{
-                    try {
-                        this.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
         }
     }
