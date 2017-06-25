@@ -11,6 +11,30 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@android:color/black">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Score:"
+            android:textSize="30dp"
+            android:padding="10px"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="30dp"
+            android:padding="10px"
+            android:id="@+id/score"/>
+    </LinearLayout>
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:max="100" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
         <Button
             android:layout_width="wrap_content"
@@ -29,13 +53,6 @@
         android:layout_height="match_parent"
         android:background="@android:color/white"
         android:id="@+id/Frames">
-<!--        <com.example.bumin.springball.PlayView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:src="@drawable/ball"
-            android:layout_gravity="center"
-            android:id="@+id/ball"
-            android:onClick="onTouched"/>-->
     </FrameLayout>
 
 </LinearLayout>

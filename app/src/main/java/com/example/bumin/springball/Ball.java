@@ -1,10 +1,8 @@
 package com.example.bumin.springball;
 
 import android.content.Context;
-import android.graphics.Paint;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.FrameLayout;
 
 /**
@@ -96,16 +94,4 @@ public class Ball extends AppCompatImageView{
         velo = new float[]{0,0};
         loc = new float[]{0,0};
     }
-
-    /*
-    public void onTouched(View v) {
-        PlayView n = (PlayView) v;
-        if (isGameON) {
-            velo[Y] = -5;
-            velo[X] = ((getCenterX() - loc[X])/ 100);
-            System.out.println("hit!");
-        } else {
-            initQuantity();
-        }
-    }*/
 }

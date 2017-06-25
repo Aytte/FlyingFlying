@@ -25,6 +25,14 @@ public class Stage extends AppCompatActivity {
         createBall();
     }
 
+    @Override
+    public void onBackPressed() {
+        System.out.println("back ");
+        isGameON = false;
+        phyMaker.interrupt();
+        super.onBackPressed();
+    }
+
     void createBall() {
         springs.add(new Ball(this));
         fram.addView(springs.get(springs.size() - 1));
@@ -35,13 +43,12 @@ public class Stage extends AppCompatActivity {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
             Ball ball = (Ball) view;
-            switch (motionEvent.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    System.out.println("clicked!");
-                    ball.setVelo((ball.getWidth() / 2 - motionEvent.getX()) / 60, -7);
-                    System.out.println(motionEvent.getX());
-                    System.out.println(motionEvent.getY());
-                    break;
+            if (isGameON) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        ball.setVelo((ball.getWidth() / 2 - motionEvent.getX()) / 60, -7);
+                        break;
+                }
             }
             return false;
         }
@@ -55,20 +62,16 @@ public class Stage extends AppCompatActivity {
             springs.get(0).setX(50);
             isGameON = true;
             phyMaker.start();
-            System.out.println("button called");
         } else {
             createBall();
         }
     }
 
-    Object dif;
-
     public void pu(View v) {
         isGameON = !isGameON;
-        if(isGameON){
-            synchronized (phyMaker){
+        if (isGameON) {
+            synchronized (phyMaker) {
                 phyMaker.notify();
-                System.out.println("notified!");
             }
         }
         System.out.println(isGameON);
@@ -84,19 +87,12 @@ public class Stage extends AppCompatActivity {
         }
 
         void addVelo() {
- /*           velo.set(X, velo.get(X) + acc.get(X));
-            velo.set(Y, velo.get(Y) + acc.get(Y));
-            //System.out.println(velo.get(Y));*/
-
             for (Ball ball : springs) {
                 ball.addVelo(ball.getAccX(), ball.getAccY());
             }
         }
 
         void locateBall() {
-/*            loc.set(X, loc.get(X) + velo.get(X));
-            loc.set(Y, loc.get(Y) + velo.get(Y));*/
-
             for (Ball ball : springs) {
                 ball.setLoc(ball.getX() + ball.getVeloX(), ball.getY() + ball.getVeloY());
                 ball.setX(ball.getLocX());
@@ -125,24 +121,22 @@ public class Stage extends AppCompatActivity {
         @Override
         public void run() {
             while (true) {
-                    if (isGameON) {
-                        updatePos();
+                if (isGameON) {
+                    updatePos();
+                    try {
+                        Thread.sleep(3);
+                    } catch (InterruptedException e) {
+                        e.getStackTrace();
+                    }
+                } else {
+                    synchronized (phyMaker) {
                         try {
-                            Thread.sleep(3);
+                            phyMaker.wait();
                         } catch (InterruptedException e) {
-                            e.getStackTrace();
-                        }
-                    } else {
-                        System.out.println("waiting!");
-                        synchronized (phyMaker){
-                            try {
-                                //dif = this;
-                                phyMaker.wait();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
+                            e.printStackTrace();
                         }
                     }
+                }
             }
         }
     }
