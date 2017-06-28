@@ -17,6 +17,7 @@ public class MainMenu extends AppCompatActivity {
 
     public void onStart(View v){
         Intent mainMenu = new Intent(MainMenu.this,Stage.class);
+        mainMenu.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(mainMenu);
         overridePendingTransition(0,0);
     }

@@ -18,6 +18,8 @@ public class Ball extends AppCompatImageView{
     public float velo[] = new float[]{0,0};
     public float loc[] = new float[]{0,0};
 
+    int hit = 0;
+
     public Ball(Context context) {
         super(context);
         setImageResource(R.drawable.ball);
